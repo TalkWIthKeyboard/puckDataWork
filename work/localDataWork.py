@@ -5,7 +5,7 @@ import variable
 client = pymongo.MongoClient("localhost",27017)
 db = client.test
 
-FileToNum = {'voice':0, 'image':1, 'video':2, 'shortvideo':3}
+FileToNum = {'voice':0, 'image':1, 'video':2, 'shortvideo':3, 'weblink':4}
 ClassToNum = {'TANSLATE_CLAZZ':0, 'ENGLISH_CLAZZ':1, 'GRE_CLAZZ':2}
 NumToClass = {0:'TANSLATE_CLAZZ', 1:'ENGLISH_CLAZZ', 2:'GRE_CLAZZ'}
 
@@ -24,7 +24,7 @@ def statisticsClassCheckTime(id,hour):
     data = collect.find_one({'openId':id})
     if data:
         clazzKey = data['clazzKey'].encode('utf-8')
-        variable.classCheckTime[ClassToNum[clazzKey]][hour] += 1
+        variable.classCheckTime[ClassToNum[clazzKey]][(hour + 8)%24] += 1
     else:
         variable.lostNum += 1
 
@@ -54,7 +54,7 @@ def drawFilePicture():
     ax2 = plt.subplot(132)
     ax3 = plt.subplot(133)
 
-    labels = ['voice', 'image', 'video', 'shortvideo']
+    labels = ['voice', 'image', 'video', 'shortvideo','weblink']
 
     plt.sca(ax1)
     plt.pie(variable.classFileNum[0], labels=labels, labeldistance=1.1, autopct='%3.1f%%', startangle=90)
