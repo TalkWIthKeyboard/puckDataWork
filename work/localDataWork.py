@@ -1,6 +1,7 @@
 import pymongo
 import matplotlib.pyplot as plt
 import variable
+import demjson
 
 client = pymongo.MongoClient("localhost",27017)
 db = client.test
@@ -25,9 +26,9 @@ def statisticsClassCheckTime(id,hour):
     if data:
         clazzKey = data['clazzKey'].encode('utf-8')
         variable.classCheckTime[ClassToNum[clazzKey]][(hour + 8)%24] += 1
+        variable.todayNumberOfClass[ClassToNum[clazzKey]] += 1
     else:
         variable.lostNum += 1
-
 
 def statisticsClassFile():
     collect = db.UserFile
@@ -47,6 +48,22 @@ def statisticsClassCheck():
         if monment > 30:
             hour = (hour + 1) % 24
         statisticsClassCheckTime(id, hour)
+
+    print variable.classCheckTime
+
+    for i in range(3):
+        for j in range(24):
+            variable.numberOfClass[i] += variable.classCheckTime[i][j]
+        for j in range(24):
+            variable.classCheckTime[i][j] /= float(variable.numberOfClass[i])
+
+def statisticsNumberOfClass():
+    collect = db.Account
+    for each in collect.find():
+        clazzKey = each['clazzKey'].encode('utf-8')
+        variable.numberOfClass[ClassToNum[clazzKey]] += 1
+    for each in range(3):
+        variable.todayNumberOfClass[each] = variable.todayNumberOfClass[each] / float(variable.numberOfClass[each])
 
 def drawFilePicture():
     plt.figure(1)
@@ -83,6 +100,6 @@ if __name__ == '__main__':
     print "finish 1"
     statisticsClassCheck()
     print "finish 2"
-
+    statisticsNumberOfClass()
     #drawFilePicture()
-    drawCheckPicture()
+    #drawCheckPicture()
